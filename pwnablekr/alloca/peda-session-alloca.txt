@@ -1,0 +1,4 @@
+break *0x8048787
+break *0x80486A2
+break *0x8048783
+
